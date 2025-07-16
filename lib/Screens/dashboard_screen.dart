@@ -21,6 +21,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     'Business',
     'Media',
   ];
+
   final Map<String, Color> colors = {
     'HR': Colors.blue,
     'Logistics': Colors.green,
@@ -37,7 +38,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   void loadData() async {
     try {
-      final participants = await GoogleSheetService.fetchParticipants();
+      final participants = await ParticipantsService.fetchParticipants();
 
       Map<String, double> attended = {
         'HR': 0,
@@ -57,10 +58,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       for (var p in participants) {
         final team = (p['team'] ?? '').toString().trim();
-        final attendance = (p['attendance'] ?? '').toString().trim();
+        final attendance = (p['attendance'] ?? false) == true;
         if (totals.containsKey(team)) {
           totals[team] = totals[team]! + 1;
-          if (attendance == '✔') {
+          if (attendance) {
             attended[team] = attended[team]! + 1;
           }
         }
@@ -122,7 +123,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     builder: (context, attended, child) {
                       final absent =
                           totalCounts.values.fold(0, (a, b) => a + b) -
-                          attended;
+                              attended;
                       return Text(
                         'Attended: $attended | Absent: $absent',
                         style: const TextStyle(

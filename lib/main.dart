@@ -3,8 +3,6 @@ import 'package:registration_qr/Screens/dashboard_screen.dart';
 import 'package:registration_qr/Screens/scanned_participants_screen.dart';
 import 'package:registration_qr/Screens/q_r_view_screen.dart';
 import 'package:registration_qr/Screens/splash_screen.dart';
-import 'package:registration_qr/Screens/user_info_screen.dart';
-import 'package:registration_qr/Server/Response.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,83 +34,29 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  void _startScan(BuildContext context) async {
-    print('✅ Start scan called');
-
-    // افتح شاشة المسح واستلم النتيجة
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const QRViewScreen()),
-    );
-
-    // تحقق من النتيجة
-    if (result == null || result is! Map<String, dynamic>) {
-      print('❌ Invalid result received');
-      return;
-    }
-
-    // تجهيز الـ ID
-    final String scannedId =
-        (result['id']?.toString().toUpperCase().trim()) ?? "";
-    print('✅ Scanned ID: $scannedId');
-
-    // جلب الـ IDs المؤكدين
-    print('✅ Fetching confirmed IDs...');
-    final List<String> confirmedIDs =
-        await GoogleSheetService.fetchConfirmedIDs();
-    print('✅ Confirmed IDs: $confirmedIDs');
-
-    // تحقق إذا كان الـ ID موجود في الـ confirmedIDs
-    if (confirmedIDs.contains(scannedId)) {
-      print('✅ This ID has already been registered');
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Already Registered ⚠️'),
-          content: const Text(
-            'This participant has already been registered before.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
-      return;
-    }
-
-    // إذا لم يكن متسجل، افتح الـ UserInfoScreen
+  void _startScan(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => UserInfoScreen(
-          data: result,
-          onConfirm: (participant) {
-            setState(() {});
-            Navigator.pop(context);
-          },
-          onDelete: (participant) {
-            setState(() {});
-          },
-        ),
-      ),
-    );
+      MaterialPageRoute(builder: (context) => QRViewScreen()),
+    ).then((_) {
+      setState(
+        () {},
+      ); // علشان لما يرجع من الاسكان يعمل refresh لو في حاجه اتغيرت
+    });
   }
 
   void _goToScannedPage() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ScannedParticipantsScreen()),
+      MaterialPageRoute(
+        builder: (context) => const ScannedParticipantsScreen(),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-
     double logoSize = screenWidth < 400 ? 180 : 200;
     double iconSize = screenWidth < 400 ? 180 : 200;
     double buttonFontSize = screenWidth < 400 ? 14 : 16;

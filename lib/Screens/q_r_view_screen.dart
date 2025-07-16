@@ -20,68 +20,76 @@ class _QRViewScreenState extends State<QRViewScreen> {
     setState(() => isScanned = true);
     controller.stop();
 
-    List<Map<String, dynamic>> participants = [];
     try {
-      participants = await GoogleSheetService.fetchParticipants();
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("❌ Cannot connect to Google Sheet"),
-          backgroundColor: Colors.red,
-        ),
-      );
-      controller.start();
-      setState(() => isScanned = false);
-      return;
-    }
+      // التحقق من البيانات عبر الـ API
+      final result = await ParticipantsService.checkID(scannedId);
 
-    final matched = participants.firstWhere(
-      (participant) =>
-          participant['id']?.toLowerCase().trim() ==
-          scannedId.toLowerCase().trim(),
-      orElse: () => {},
-    );
-
-    if (matched.isNotEmpty) {
-      await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => UserInfoScreen(
-            data: matched,
-            onConfirm: (_) {},
-            onDelete: (_) {},
-          ),
-        ),
-      );
-      controller.start();
-      setState(() => isScanned = false);
-    } else {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          backgroundColor: const Color(0xff016da6),
-          title: const Text(
-            'Invalid QR ⚠️ ',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white),
-          ),
-          content: const Text(
-            "This ID is not found in Google Sheet.",
-            style: TextStyle(color: Colors.white),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                controller.start();
-                setState(() => isScanned = false);
+      // إذا لم يتم العثور على البيانات
+      if (result == null) {
+        _showErrorDialog('Invalid QR ⚠️', 'This ID is not found.');
+      } else if (result['attendance'] == true) {
+        // إذا كان قد تم مسح الكود من قبل (الحضور مؤكد)
+        _showErrorDialog(
+          'Already Scanned ✅',
+          'This person has already been scanned.',
+        );
+      } else {
+        // إذا لم يتم مسح الكود من قبل، نعرض صفحة البيانات (UserInfoScreen)
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => UserInfoScreen(
+              data: {
+                'id': result['id'],
+                'name': result['name'],
+                'email': result['email'],
+                'team': result['team'],
+                'attendance': result['attendance'],
               },
-              child: const Text('OK', style: TextStyle(color: Colors.white)),
+              onConfirm: (_) async {
+                // عند تأكيد الحضور، نحدث الحضور عبر الـ API
+                await ParticipantsService.confirmAttendance(result['id']);
+                Navigator.pop(context);
+              },
+              onDelete: (_) {
+                // التعامل مع الحذف إذا لزم الأمر
+              },
             ),
-          ],
-        ),
-      );
+          ),
+        );
+      }
+    } catch (e) {
+      _showErrorDialog('Error', 'Failed to connect to API.');
     }
+
+    controller.start();
+    setState(() => isScanned = false);
+  }
+
+  // دالة لعرض الأخطاء في حالة عدم وجود البيانات أو تأكيد الحضور
+  void _showErrorDialog(String title, String content) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xff016da6),
+        title: Text(
+          title,
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: Colors.white),
+        ),
+        content: Text(content, style: const TextStyle(color: Colors.white)),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              controller.start();
+              setState(() => isScanned = false);
+            },
+            child: const Text('OK', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

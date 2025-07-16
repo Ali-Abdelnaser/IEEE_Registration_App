@@ -62,10 +62,9 @@ class UserInfoScreen extends StatelessWidget {
                   ElevatedButton.icon(
                     onPressed: () async {
                       final success =
-                          await GoogleSheetService.confirmAttendance(data);
+                          await ParticipantsService.confirmAttendance(data['id']);
                       if (success) {
-                        data['attendance'] = "✔";
-
+                        data['attendance'] = true; // حط ترو عادي مش ✔
                         onConfirm(data);
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
@@ -75,6 +74,7 @@ class UserInfoScreen extends StatelessWidget {
                             backgroundColor: Colors.green,
                           ),
                         );
+                        Navigator.pop(context);
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
@@ -106,15 +106,15 @@ class UserInfoScreen extends StatelessWidget {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Center(
-                            child: Text(' Participant removed locally 🗑️'),
+                            child: Text('Attendance Cancelled ❌ '),
                           ),
                           backgroundColor: Colors.red,
                         ),
                       );
                       Navigator.pop(context);
                     },
-                    icon: const Icon(Icons.delete),
-                    label: const Text("Delete"),
+                    icon: const Icon(Icons.cancel, color: Colors.red),
+                    label: const Text("Cancel"),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                       foregroundColor: Colors.white,

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:registration_qr/Data/participant.dart';
+import 'package:registration_qr/Data/local_storage.dart';
 import 'package:registration_qr/Server/Response.dart';
 
 class UserInfoScreen extends StatelessWidget {
@@ -61,9 +63,22 @@ class UserInfoScreen extends StatelessWidget {
                 children: [
                   ElevatedButton.icon(
                     onPressed: () async {
+                      
+
                       final success =
-                          await ParticipantsService.confirmAttendance(data['id']);
+                          await ParticipantsService.confirmAttendance(
+                            data['id'],
+                          );
                       if (success) {
+                        //هنا الدلة دي بتاخد  نسخه من البيانات بتاعت الشخص الي اتعمله كونفرم 
+                        await LocalStorage.addParticipant(
+                        Participant(
+                          id: data['id'],
+                          name: data['name'],
+                          email: data['email'],
+                          team: data['team'],
+                        ),
+                      );
                         data['attendance'] = true; // حط ترو عادي مش ✔
                         onConfirm(data);
                         ScaffoldMessenger.of(context).showSnackBar(

@@ -37,9 +37,17 @@ dependencies:
   fl_chart: ^0.66.1
   pie_chart: ^5.3.2
   mobile_scanner: ^3.5.4
-  shared_preferences: ^2.2.2
   qr_flutter: ^4.1.0
   http: ^0.13.5
+  firebase_core: ^2.0.0
+  cloud_firestore: ^4.0.0
+  csv: ^5.0.0
+  path_provider: ^2.0.15
+  permission_handler: ^11.3.1
+  flutter_animate: ^4.5.0
+  intl: ^0.18.0
+  file_saver: ^0.2.9
+  firebase_auth: ^4.0.0  # لو هتعمل تسجيل دخول
 dev_dependencies:
   flutter_test:
     sdk: flutter

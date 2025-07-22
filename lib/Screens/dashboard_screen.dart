@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pie_chart/pie_chart.dart';
-import 'package:registration_qr/Server/Response.dart';
+import 'package:registration_qr/Server/firestore_service.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -38,7 +39,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   void loadData() async {
     try {
-      final participants = await ParticipantsService.fetchParticipants();
+      final firestoreService = FirestoreService();
+      final participants = await firestoreService.fetchAllParticipants();
 
       Map<String, double> attended = {
         'HR': 0,
@@ -136,19 +138,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     },
                   ),
                   const SizedBox(height: 24),
-                  PieChart(
-                    dataMap: attendedCounts,
-                    colorList: teams.map((t) => colors[t]!).toList(),
-                    chartRadius: screenWidth / 1.5,
-                    legendOptions: const LegendOptions(
-                      showLegends: true,
-                      legendPosition: LegendPosition.bottom,
+                  Animate(
+                    effects: [
+                      FadeEffect(duration: 700.ms),
+                      ScaleEffect(duration: 700.ms),
+                    ],
+                    child: PieChart(
+                      dataMap: attendedCounts,
+                      colorList: teams.map((t) => colors[t]!).toList(),
+                      chartRadius: screenWidth / 1.5,
+                      legendOptions: const LegendOptions(
+                        showLegends: true,
+                        legendPosition: LegendPosition.bottom,
+                      ),
+                      chartValuesOptions: const ChartValuesOptions(
+                        showChartValuesInPercentage: true,
+                        showChartValues: true,
+                      ),
+                      chartType: ChartType.disc,
                     ),
-                    chartValuesOptions: const ChartValuesOptions(
-                      showChartValuesInPercentage: true,
-                      showChartValues: true,
-                    ),
-                    chartType: ChartType.disc,
                   ),
                   const SizedBox(height: 30),
                   ...teams.map((team) {
@@ -156,38 +164,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     final total = totalCounts[team] ?? 0;
                     final absent = total - attended;
 
-                    return Card(
-                      color: Colors.white,
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
+                    return Animate(
+                      effects: [
+                        FadeEffect(duration: 600.ms),
+                        SlideEffect(duration: 600.ms, begin: const Offset(0, 0.2)),
+                      ],
+                      child: Card(
+                        color: Colors.white,
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '$team: $attended Attended',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: colors[team],
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '$team: $attended Attended',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: colors[team],
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Total in $team: $total | Absent: $absent',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: Colors.black54,
+                              const SizedBox(height: 4),
+                              Text(
+                                'Total in $team: $total | Absent: $absent',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.black54,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     );

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:registration_qr/Data/participant.dart';
-import 'package:registration_qr/Data/local_storage.dart';
-import 'package:registration_qr/Server/Response.dart';
+import 'package:registration_qr/Server/firestore_service.dart';
 
 class UserInfoScreen extends StatelessWidget {
   final Map<String, dynamic> data;
@@ -30,7 +28,6 @@ class UserInfoScreen extends StatelessWidget {
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Card(
                 elevation: 4,
@@ -39,10 +36,7 @@ class UserInfoScreen extends StatelessWidget {
                 ),
                 color: const Color(0xff016da6),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 28,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -63,29 +57,13 @@ class UserInfoScreen extends StatelessWidget {
                 children: [
                   ElevatedButton.icon(
                     onPressed: () async {
-                      
-
-                      final success =
-                          await ParticipantsService.confirmAttendance(
-                            data['id'],
-                          );
+                      final success = await FirestoreService.confirmAttendance(data['id']);
                       if (success) {
-                        //هنا الدلة دي بتاخد  نسخه من البيانات بتاعت الشخص الي اتعمله كونفرم 
-                        await LocalStorage.addParticipant(
-                        Participant(
-                          id: data['id'],
-                          name: data['name'],
-                          email: data['email'],
-                          team: data['team'],
-                        ),
-                      );
-                        data['attendance'] = true; // حط ترو عادي مش ✔
+                        data['attendance'] = true;
                         onConfirm(data);
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Center(
-                              child: Text('✔️ Attendance Confirmed'),
-                            ),
+                            content: Center(child: Text('✔️ Attendance Confirmed')),
                             backgroundColor: Colors.green,
                           ),
                         );
@@ -93,9 +71,7 @@ class UserInfoScreen extends StatelessWidget {
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Center(
-                              child: Text('❌ Failed to confirm attendance'),
-                            ),
+                            content: Center(child: Text('❌ Failed to confirm attendance')),
                             backgroundColor: Colors.red,
                           ),
                         );
@@ -106,13 +82,8 @@ class UserInfoScreen extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 14,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                   ElevatedButton.icon(
@@ -120,26 +91,19 @@ class UserInfoScreen extends StatelessWidget {
                       onDelete(data);
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Center(
-                            child: Text('Attendance Cancelled ❌ '),
-                          ),
+                          content: Center(child: Text('Attendance Cancelled ❌')),
                           backgroundColor: Colors.red,
                         ),
                       );
                       Navigator.pop(context);
                     },
-                    icon: const Icon(Icons.cancel, color: Colors.red),
+                    icon: const Icon(Icons.cancel, color: Color.fromARGB(255, 255, 255, 255)),
                     label: const Text("Cancel"),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 14,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                 ],

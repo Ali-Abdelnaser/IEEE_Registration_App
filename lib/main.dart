@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:registration_qr/Screens/dashboard_screen.dart';
 import 'package:registration_qr/Screens/scanned_participants_screen.dart';
 import 'package:registration_qr/Screens/q_r_view_screen.dart';
 import 'package:registration_qr/Screens/splash_screen.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(MyApp());
 }
 
@@ -138,6 +140,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
+
             const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: _goToScannedPage,
@@ -161,6 +164,8 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
+            const SizedBox(height: 20),
+            
           ],
         ),
       ),

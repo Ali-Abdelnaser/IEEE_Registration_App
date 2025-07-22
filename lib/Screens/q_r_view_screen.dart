@@ -1,7 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:registration_qr/Screens/user_info_screen.dart';
-import 'package:registration_qr/Server/Response.dart';
 
 class QRViewScreen extends StatefulWidget {
   const QRViewScreen({super.key});
@@ -21,52 +21,52 @@ class _QRViewScreenState extends State<QRViewScreen> {
     controller.stop();
 
     try {
-      // التحقق من البيانات عبر الـ API
-      final result = await ParticipantsService.checkID(scannedId);
+      final doc = await FirebaseFirestore.instance
+          .collection('attendees')
+          .doc(scannedId)
+          .get();
 
-      // إذا لم يتم العثور على البيانات
-      if (result == null) {
+      if (!doc.exists) {
         _showErrorDialog('Invalid QR ⚠️', 'This ID is not found.');
-      } else if (result['attendance'] == true) {
-        // إذا كان قد تم مسح الكود من قبل (الحضور مؤكد)
+      } else if (doc['attendance'] == true) {
         _showErrorDialog(
           'Already Scanned ✅',
           'This person has already been scanned.',
         );
       } else {
-        // إذا لم يتم مسح الكود من قبل، نعرض صفحة البيانات (UserInfoScreen)
         await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (_) => UserInfoScreen(
               data: {
-                'id': result['id'],
-                'name': result['name'],
-                'email': result['email'],
-                'team': result['team'],
-                'attendance': result['attendance'],
+                'id': doc.id,
+                'name': doc['name'],
+                'email': doc['email'],
+                'team': doc['team'],
+                'attendance': doc['attendance'],
               },
               onConfirm: (_) async {
-                // عند تأكيد الحضور، نحدث الحضور عبر الـ API
-                await ParticipantsService.confirmAttendance(result['id']);
+                await FirebaseFirestore.instance
+                    .collection('attendees')
+                    .doc(doc.id)
+                    .update({'attendance': true});
                 Navigator.pop(context);
               },
               onDelete: (_) {
-                // التعامل مع الحذف إذا لزم الأمر
+                // استخدمها لو عايز تحذف الشخص من الواجهة
               },
             ),
           ),
         );
       }
     } catch (e) {
-      _showErrorDialog('Error', 'Failed to connect to API.');
+      _showErrorDialog('Error', 'Failed to connect to database.');
     }
 
     controller.start();
     setState(() => isScanned = false);
   }
 
-  // دالة لعرض الأخطاء في حالة عدم وجود البيانات أو تأكيد الحضور
   void _showErrorDialog(String title, String content) {
     showDialog(
       context: context,
@@ -89,6 +89,51 @@ class _QRViewScreenState extends State<QRViewScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildScannerOverlay(BuildContext context, double boxSize) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final boxLeft = (screenWidth - boxSize) / 2;
+    final boxTop = (screenHeight - boxSize) / 2;
+
+    return Stack(
+      children: [
+        Positioned(
+          left: boxLeft,
+          top: boxTop,
+          width: boxSize,
+          height: boxSize,
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.white.withOpacity(0.7),
+                width: 2,
+              ),
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+        _AnimatedScannerLine(
+          boxTop: boxTop,
+          boxLeft: boxLeft,
+          boxSize: boxSize,
+        ),
+        Positioned(
+          bottom: 80,
+          left: 0,
+          right: 0,
+          child: Text(
+            'Place the QR code inside the box to scan',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Color.fromARGB(179, 0, 0, 0),
+              fontSize: 16,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -127,44 +172,6 @@ class _QRViewScreenState extends State<QRViewScreen> {
   }
 }
 
-Widget _buildScannerOverlay(BuildContext context, double boxSize) {
-  final screenHeight = MediaQuery.of(context).size.height;
-  final screenWidth = MediaQuery.of(context).size.width;
-  final boxLeft = (screenWidth - boxSize) / 2;
-  final boxTop = (screenHeight - boxSize) / 2;
-
-  return Stack(
-    children: [
-      Positioned(
-        left: boxLeft,
-        top: boxTop,
-        width: boxSize,
-        height: boxSize,
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.white.withOpacity(0.7), width: 2),
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      ),
-      _AnimatedScannerLine(boxTop: boxTop, boxLeft: boxLeft, boxSize: boxSize),
-      Positioned(
-        bottom: 80,
-        left: 0,
-        right: 0,
-        child: Text(
-          'Place the QR code inside the box to scan',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: const Color.fromARGB(179, 0, 0, 0),
-            fontSize: 16,
-          ),
-        ),
-      ),
-    ],
-  );
-}
-
 class _AnimatedScannerLine extends StatefulWidget {
   final double boxTop;
   final double boxLeft;
@@ -192,7 +199,11 @@ class _AnimatedScannerLineState extends State<_AnimatedScannerLine>
       duration: const Duration(seconds: 2),
       vsync: this,
     )..repeat(reverse: true);
-    _animation = Tween<double>(begin: 0, end: 1).animate(_controller);
+
+    _animation = Tween<double>(
+      begin: 0,
+      end: widget.boxSize,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -200,9 +211,8 @@ class _AnimatedScannerLineState extends State<_AnimatedScannerLine>
     return AnimatedBuilder(
       animation: _animation,
       builder: (context, child) {
-        final laserTop = widget.boxTop + (widget.boxSize * _animation.value);
         return Positioned(
-          top: laserTop,
+          top: widget.boxTop + _animation.value,
           left: widget.boxLeft,
           width: widget.boxSize,
           child: Container(height: 2, color: Colors.redAccent),

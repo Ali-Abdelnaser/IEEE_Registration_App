@@ -1,142 +1,172 @@
 import 'package:flutter/material.dart';
+import 'package:registration_qr/Screens/q_r_view_screen.dart';
 import 'package:registration_qr/Server/firestore_service.dart';
+import 'package:registration_qr/Server/navigator.dart';
 
 class UserInfoScreen extends StatelessWidget {
   final Map<String, dynamic> data;
   final Function(Map<String, dynamic>) onConfirm;
-  final Function(Map<String, dynamic>) onDelete;
 
   const UserInfoScreen({
     super.key,
     required this.data,
     required this.onConfirm,
-    required this.onDelete,
   });
 
   @override
   Widget build(BuildContext context) {
+    final height = MediaQuery.of(context).size.height;
+    final width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('Participant Details'),
-        centerTitle: true,
-        backgroundColor: const Color(0xff016da6),
-        foregroundColor: Colors.white,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                color: const Color(0xff016da6),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _infoRow("ID:", data['id']),
-                      const SizedBox(height: 12),
-                      _infoRow("Name:", data['name']),
-                      const SizedBox(height: 12),
-                      _infoRow("Email:", data['email']),
-                      const SizedBox(height: 12),
-                      _infoRow("Team:", data['team']),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 40),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () async {
-                      final success = await FirestoreService.confirmAttendance(data['id']);
-                      if (success) {
-                        data['attendance'] = true;
-                        onConfirm(data);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Center(child: Text('✔️ Attendance Confirmed')),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-                        Navigator.pop(context);
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Center(child: Text('❌ Failed to confirm attendance')),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    },
-                    icon: const Icon(Icons.check),
-                    label: const Text("Confirm"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      onDelete(data);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Center(child: Text('Attendance Cancelled ❌')),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                      Navigator.pop(context);
-                    },
-                    icon: const Icon(Icons.cancel, color: Color.fromARGB(255, 255, 255, 255)),
-                    label: const Text("Cancel"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
+      body: Stack(
+        children: [
+          // الخلفية (الصورة)
+          SizedBox(
+            height: height * 0.3,
+            width: width,
+            child: Image.asset('assets/img/IEEE_Blue.png', fit: BoxFit.cover),
+          ),
+
+          // الجزء الأبيض فوق الصورة
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              width: double.infinity,
+              height: height * 0.7,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 12,
+                    offset: Offset(0, -4),
                   ),
                 ],
               ),
-            ],
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: ListView(
+                      children: [
+                        _infoRow("ID", data['id'], Icons.assignment_ind),
+                        _infoRow("Name", data['name'], Icons.person),
+                        _infoRow("Email", data['email'], Icons.email),
+                        _infoRow("Team", data['team'], Icons.groups),
+                        const Spacer(),
+                        ElevatedButton(
+                          onPressed: () async {
+                            final success =
+                                await FirestoreService.confirmAttendance(
+                                  data['id'],
+                                );
+                            if (success) {
+                              data['attendance'] = true;
+                              onConfirm(data);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Center(
+                                    child: Text(
+                                      'Attendance Confirmed ✔️ ',
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                  ),
+                                  backgroundColor: Colors.green.shade600,
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  margin: const EdgeInsets.all(16),
+                                  duration: const Duration(seconds: 2),
+                                ),
+                              );
+                              Navigator.pop(context, true);
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Center(
+                                    child: Text(
+                                      'Failed to confirm attendance ❌ ',
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                  ),
+                                  backgroundColor: Colors.red,
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  margin: const EdgeInsets.all(16),
+                                  duration: const Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xff016da6),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: const Text(
+                            'Submit',
+                            style: TextStyle(fontSize: 18),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  //Icons.assignment_ind ,Icons.person , Icons.email ,Icons.groups
+                ],
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
 
-  Widget _infoRow(String title, String? value) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "$title ",
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+  Widget _infoRow(String title, String? value, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+      child: Container(
+        height: 85,
+        decoration: BoxDecoration(
+          color: const Color(0xFFF6F6F6),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xffe0e0e0)),
         ),
-        Expanded(
-          child: Center(
-            child: Text(
-              value ?? '',
-              style: const TextStyle(color: Colors.white, fontSize: 16),
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 5,
+          ),
+          leading: Icon(icon, color: Color(0xff016da6), size: 28),
+          title: Text(
+            title,
+            style: const TextStyle(
+              color: Colors.grey,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          subtitle: Text(
+            value ?? '',
+            style: const TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
               overflow: TextOverflow.ellipsis,
             ),
           ),
         ),
-      ],
+      ),
     );
   }
 }

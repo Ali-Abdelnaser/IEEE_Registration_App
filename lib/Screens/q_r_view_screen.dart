@@ -13,6 +13,7 @@ class QRViewScreen extends StatefulWidget {
 class _QRViewScreenState extends State<QRViewScreen> {
   final MobileScannerController controller = MobileScannerController();
   bool isScanned = false;
+  double zoom = 0.0;
 
   Future<void> _handleScan(String? scannedId) async {
     if (isScanned || scannedId == null) return;
@@ -30,7 +31,7 @@ class _QRViewScreenState extends State<QRViewScreen> {
         _showErrorDialog('Invalid QR ⚠️', 'This ID is not found.');
       } else if (doc['attendance'] == true) {
         _showErrorDialog(
-          'Already Scanned ✅',
+          'Already Scanned ',
           'This person has already been scanned.',
         );
       } else {
@@ -50,10 +51,7 @@ class _QRViewScreenState extends State<QRViewScreen> {
                     .collection('attendees')
                     .doc(doc.id)
                     .update({'attendance': true});
-                Navigator.pop(context);
-              },
-              onDelete: (_) {
-                // استخدمها لو عايز تحذف الشخص من الواجهة
+                Navigator.pop(context, true);
               },
             ),
           ),
@@ -62,7 +60,7 @@ class _QRViewScreenState extends State<QRViewScreen> {
     } catch (e) {
       _showErrorDialog('Error', 'Failed to connect to database.');
     }
-
+    await Future.delayed(const Duration(milliseconds: 300));
     controller.start();
     setState(() => isScanned = false);
   }
@@ -70,24 +68,62 @@ class _QRViewScreenState extends State<QRViewScreen> {
   void _showErrorDialog(String title, String content) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xff016da6),
-        title: Text(
-          title,
-          textAlign: TextAlign.center,
-          style: const TextStyle(color: Colors.white),
-        ),
-        content: Text(content, style: const TextStyle(color: Colors.white)),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              controller.start();
-              setState(() => isScanned = false);
-            },
-            child: const Text('OK', style: TextStyle(color: Colors.white)),
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                title.contains('Error') || title.contains('Invalid')
+                    ? Icons.warning_amber_rounded
+                    : Icons.check_circle_rounded,
+                color: title.contains('Error') || title.contains('Invalid')
+                    ? Colors.orange
+                    : Colors.green,
+                size: 50,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xff016da6),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                content,
+                style: const TextStyle(fontSize: 16, color: Colors.black87),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: const Color(0xff016da6),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    await Future.delayed(const Duration(milliseconds: 300));
+                    controller.start();
+                    setState(() => isScanned = false);
+                  },
+                  child: const Text('OK'),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -100,38 +136,42 @@ class _QRViewScreenState extends State<QRViewScreen> {
 
     return Stack(
       children: [
+        // كاميرا زوم سليدر
+        Positioned(
+          bottom: 40,
+          left: 30,
+          right: 30,
+          child: Column(
+            children: [
+              const Text("Zoom", style: TextStyle(color: Colors.white70)),
+              Slider(
+                value: zoom,
+                min: 0.0,
+                max: 1.0,
+                divisions: 10,
+                onChanged: (value) {
+                  setState(() => zoom = value);
+                  controller.setZoomScale(value);
+                },
+              ),
+            ],
+          ),
+        ),
+
+        // مربع الأربع أركان
         Positioned(
           left: boxLeft,
           top: boxTop,
           width: boxSize,
           height: boxSize,
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Colors.white.withOpacity(0.7),
-                width: 2,
-              ),
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
+          child: CustomPaint(painter: CornerPainter()),
         ),
+
+        // خط أحمر متحرك
         _AnimatedScannerLine(
           boxTop: boxTop,
           boxLeft: boxLeft,
           boxSize: boxSize,
-        ),
-        Positioned(
-          bottom: 80,
-          left: 0,
-          right: 0,
-          child: Text(
-            'Place the QR code inside the box to scan',
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Color.fromARGB(179, 0, 0, 0),
-              fontSize: 16,
-            ),
-          ),
         ),
       ],
     );
@@ -150,12 +190,6 @@ class _QRViewScreenState extends State<QRViewScreen> {
 
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: const Color(0xff016da6),
-        foregroundColor: Colors.white,
-        title: const Text("Scan QR Code"),
-        centerTitle: true,
-      ),
       body: Stack(
         children: [
           MobileScanner(
@@ -172,6 +206,63 @@ class _QRViewScreenState extends State<QRViewScreen> {
   }
 }
 
+// ✅ الأربع أركان بتاعة المربع
+class CornerPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white
+      ..strokeWidth = 3
+      ..style = PaintingStyle.stroke;
+
+    const cornerLength = 20.0;
+
+    // Top-left
+    canvas.drawLine(Offset(0, 0), Offset(cornerLength, 0), paint);
+    canvas.drawLine(Offset(0, 0), Offset(0, cornerLength), paint);
+
+    // Top-right
+    canvas.drawLine(
+      Offset(size.width, 0),
+      Offset(size.width - cornerLength, 0),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(size.width, 0),
+      Offset(size.width, cornerLength),
+      paint,
+    );
+
+    // Bottom-left
+    canvas.drawLine(
+      Offset(0, size.height),
+      Offset(0, size.height - cornerLength),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(0, size.height),
+      Offset(cornerLength, size.height),
+      paint,
+    );
+
+    // Bottom-right
+    canvas.drawLine(
+      Offset(size.width, size.height),
+      Offset(size.width - cornerLength, size.height),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(size.width, size.height),
+      Offset(size.width, size.height - cornerLength),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
+}
+
+// ✅ خط المسح الأحمر المتحرك
 class _AnimatedScannerLine extends StatefulWidget {
   final double boxTop;
   final double boxLeft;

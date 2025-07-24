@@ -1,11 +1,11 @@
 import 'dart:typed_data';
-import 'package:csv/csv.dart';
+import 'package:excel/excel.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
 
-Future<void> exportParticipantsAsCSV(
+Future<void> exportParticipantsAsExcel(
   BuildContext context,
   List<Map<String, dynamic>> participants,
 ) async {
@@ -17,12 +17,15 @@ Future<void> exportParticipantsAsCSV(
     return;
   }
 
-  List<List<String>> rows = [
-    ['ID', 'Name', 'Email', 'Team', 'Attendance'],
-  ];
+  final excel = Excel.createExcel(); // Create new Excel
+  final sheet = excel['Participants'];
 
+  // Add header row
+  sheet.appendRow(['ID', 'Name', 'Email', 'Team', 'Attendance']);
+
+  // Add participant data
   for (var p in participants) {
-    rows.add([
+    sheet.appendRow([
       p['id'] ?? '',
       p['name'] ?? '',
       p['email'] ?? '',
@@ -31,23 +34,40 @@ Future<void> exportParticipantsAsCSV(
     ]);
   }
 
-  String csvData = const ListToCsvConverter().convert(rows);
-  Uint8List bytes = Uint8List.fromList(csvData.codeUnits);
+  // Convert to bytes
+ final List<int>? fileBytes = excel.encode();
+if (fileBytes == null) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('❌ Failed to generate Excel file')),
+  );
+  return;
+}
+final Uint8List bytes = Uint8List.fromList(fileBytes);
+
+  if (bytes == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('❌ Failed to generate Excel file')),
+    );
+    return;
+  }
+
   final String timestamp = DateFormat('yyyy-MM-dd').format(DateTime.now());
   final String fileName = 'participants_$timestamp';
 
+  // Save file
   await FileSaver.instance.saveFile(
     name: fileName,
     bytes: bytes,
-    ext: 'csv',
-    mimeType: MimeType.csv,
+    ext: 'xlsx',
+    mimeType: MimeType.microsoftExcel,
   );
 
+  // Show success dialog
   showDialog(
     context: context,
     builder: (ctx) => AlertDialog(
       title: const Text('✅ Success'),
-      content: Text('CSV saved in Downloads:\n$fileName'),
+      content: Text('Excel saved in Downloads:\n$fileName.xlsx'),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(ctx),

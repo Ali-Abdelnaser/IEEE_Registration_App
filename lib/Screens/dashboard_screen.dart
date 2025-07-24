@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:pie_chart/pie_chart.dart';
+import 'package:registration_qr/Cus_Widgits/loder.dart';
+import 'package:registration_qr/Screens/main_shell.dart';
+import 'package:registration_qr/Server/download_data.dart';
 import 'package:registration_qr/Server/firestore_service.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+import 'package:registration_qr/Server/navigator.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -24,12 +27,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   ];
 
   final Map<String, Color> colors = {
-    'HR': Colors.blue,
+    'HR': const Color.fromARGB(179, 1, 68, 126),
     'Logistics': Colors.green,
     'Assistant': Colors.orange,
     'Business': Colors.purple,
     'Media': Colors.red,
   };
+
+  List<Map<String, dynamic>> filteredList = [];
 
   @override
   void initState() {
@@ -73,6 +78,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         attendedCounts = attended;
         totalCounts = totals;
         totalAttendance = attended.values.fold(0.0, (a, b) => a + b).toInt();
+        filteredList = participants;
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -88,120 +94,131 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('Dashboard'),
-        centerTitle: true,
-        backgroundColor: const Color(0xff016da6),
-        foregroundColor: Colors.white,
-      ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: screenPadding, vertical: 16),
         child: attendedCounts.isEmpty
-            ? const Center(child: CircularProgressIndicator())
+            ? const Center(child: MyAppLoader())
             : ListView(
                 children: [
-                  TweenAnimationBuilder<int>(
-                    tween: IntTween(
-                      begin: 0,
-                      end: totalCounts.values.fold(0, (a, b) => a! + b),
-                    ),
-                    duration: const Duration(seconds: 2),
-                    builder: (context, value, child) {
-                      return Text(
-                        'Total Participants: $value',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xff016da6),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        onPressed: () => AppNavigator.slideLikePageView(
+                          context,
+                          MainShell(),
                         ),
-                        textAlign: TextAlign.center,
-                      );
-                    },
+                        color: Colors.black54,
+                      ),
+                      Center(
+                        child: Text(
+                          'Total Participants: ${totalCounts.values.fold(0, (a, b) => a + b)}            ',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 8),
-                  TweenAnimationBuilder<int>(
-                    tween: IntTween(begin: 0, end: totalAttendance),
-                    duration: const Duration(seconds: 2),
-                    builder: (context, attended, child) {
-                      final absent =
-                          totalCounts.values.fold(0, (a, b) => a + b) -
-                              attended;
-                      return Text(
-                        'Attended: $attended | Absent: $absent',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black87,
-                        ),
-                        textAlign: TextAlign.center,
-                      );
-                    },
+                  const SizedBox(height: 4),
+                  Text(
+                    'Attended: $totalAttendance | Absent: ${totalCounts.values.fold(0, (a, b) => a + b) - totalAttendance}',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 24),
-                  Animate(
-                    effects: [
-                      FadeEffect(duration: 700.ms),
-                      ScaleEffect(duration: 700.ms),
-                    ],
-                    child: PieChart(
-                      dataMap: attendedCounts,
-                      colorList: teams.map((t) => colors[t]!).toList(),
-                      chartRadius: screenWidth / 1.5,
-                      legendOptions: const LegendOptions(
-                        showLegends: true,
-                        legendPosition: LegendPosition.bottom,
+                  PieChart(
+                    dataMap: attendedCounts,
+                    colorList: teams.map((t) => colors[t]!).toList(),
+                    chartRadius: screenWidth / 1.5,
+                    legendOptions: const LegendOptions(
+                      showLegends: true,
+                      legendPosition: LegendPosition.bottom,
+                    ),
+                    chartValuesOptions: const ChartValuesOptions(
+                      showChartValuesInPercentage: true,
+                      showChartValues: true,
+                    ),
+                    chartType: ChartType.disc,
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Export Button (Excel)
+                  SizedBox(
+                    width: double.infinity,
+                    height: 55,
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        await exportParticipantsAsExcel(
+                          context,
+                          filteredList,
+                        );
+                      },
+                      icon: const Icon(Icons.file_download_outlined,size: 25,),
+                      label: const Text(
+                        'Download Attendance ',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      chartValuesOptions: const ChartValuesOptions(
-                        showChartValuesInPercentage: true,
-                        showChartValues: true,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xff016da6),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 4,
                       ),
-                      chartType: ChartType.disc,
                     ),
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 20),
+
+                  // Cards per team
                   ...teams.map((team) {
                     final attended = attendedCounts[team]?.toInt() ?? 0;
                     final total = totalCounts[team] ?? 0;
                     final absent = total - attended;
 
-                    return Animate(
-                      effects: [
-                        FadeEffect(duration: 600.ms),
-                        SlideEffect(duration: 600.ms, begin: const Offset(0, 0.2)),
-                      ],
-                      child: Card(
-                        color: Colors.white,
-                        margin: const EdgeInsets.symmetric(vertical: 8),
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    return Card(
+                      color: const Color.fromARGB(207, 211, 210, 210),
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '$team: $attended Attended',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                  color: colors[team],
-                                ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '$team: $attended Attended',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: colors[team],
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Total in $team: $total | Absent: $absent',
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.black54,
-                                ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Total in $team: $total | Absent: $absent',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.black54,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     );

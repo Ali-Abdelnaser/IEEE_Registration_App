@@ -1,15 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:registration_qr/Cus_Widgits/start_page.dart';
+import 'package:registration_qr/Server/navigator.dart';
 
 class SplashScreen extends StatefulWidget {
-  final String nextRoute;
   final Duration duration;
 
-  const SplashScreen({
-    Key? key,
-    required this.nextRoute,
-    this.duration = const Duration(seconds: 2),
-  }) : super(key: key);
+  const SplashScreen({Key? key, this.duration = const Duration(seconds: 2)})
+    : super(key: key);
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -19,25 +17,22 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(widget.duration, () {
-      Navigator.of(context).pushReplacementNamed(widget.nextRoute);
+    Future.delayed(const Duration(seconds: 3), () {
+      AppNavigator.slideLikePageView(context, OnBoardingScreen());
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    
-
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black87,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ClipOval(
-              
               child: Image.asset(
-                "assets/img/logo.png",
+                "assets/img/IEEE_White.png",
                 width: 300,
                 height: 300,
                 fit: BoxFit.cover,

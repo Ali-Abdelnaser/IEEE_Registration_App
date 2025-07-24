@@ -47,7 +47,9 @@ dependencies:
   flutter_animate: ^4.5.0
   intl: ^0.18.0
   file_saver: ^0.2.9
-  firebase_auth: ^4.0.0  # لو هتعمل تسجيل دخول
+  firebase_auth: ^4.0.0 # لو هتعمل تسجيل دخول
+  loading_animation_widget: ^1.2.0
+  excel: ^2.1.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -59,10 +61,12 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
   flutter_launcher_icons: ^0.14.4
-flutter_icons:
+flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/img/logo.png"
+  image_path: "assets/img/IEEE_White.png" # ← غيّر ده حسب مكان صورة اللوجو بتاعتك
+  adaptive_icon_background: "#000000"
+  adaptive_icon_foreground: "assets/img/IEEE_White.png"
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

@@ -20,7 +20,7 @@ class AppNavigator {
           child: child,
         );
       },
-      const Duration(milliseconds: 1500),
+      const Duration(milliseconds: 200),
     );
   }
 
@@ -59,7 +59,7 @@ class AppNavigator {
     Widget screen,
     bool replace,
     Widget Function(Animation<double>, Animation<double>, Widget) transition, [
-    Duration duration = const Duration(milliseconds: 1500),
+    Duration duration = const Duration(milliseconds: 300),
   ]) {
     final route = PageRouteBuilder(
       transitionDuration: duration,

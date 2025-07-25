@@ -169,7 +169,6 @@ class _ScannedParticipantsScreenState extends State<ScannedParticipantsScreen>
                         ),
                       ),
                       child: DropdownButtonHideUnderline(
-
                         child: DropdownButton<String>(
                           value: selectedTeam,
                           isExpanded: true,
@@ -310,25 +309,31 @@ class _ScannedParticipantsScreenState extends State<ScannedParticipantsScreen>
                                                       BorderRadius.circular(20),
                                                 ),
                                                 titlePadding:
-                                                    const EdgeInsets.fromLTRB(
-                                                      24,
-                                                      20,
-                                                      24,
-                                                      10,
+                                                    EdgeInsets.symmetric(
+                                                      horizontal:
+                                                          MediaQuery.of(
+                                                            context,
+                                                          ).size.width *
+                                                          0.05,
+                                                      vertical: 8,
                                                     ),
                                                 contentPadding:
-                                                    const EdgeInsets.fromLTRB(
-                                                      24,
-                                                      10,
-                                                      24,
-                                                      10,
+                                                    EdgeInsets.symmetric(
+                                                      horizontal:
+                                                          MediaQuery.of(
+                                                            context,
+                                                          ).size.width *
+                                                          0.05,
+                                                      vertical: 8,
                                                     ),
-                                                actionsPadding:
-                                                    const EdgeInsets.only(
-                                                      right: 12,
-                                                      bottom: 8,
-                                                    ),
-
+                                                actionsPadding: EdgeInsets.only(
+                                                  right:
+                                                      MediaQuery.of(
+                                                        context,
+                                                      ).size.width *
+                                                      0.03,
+                                                  bottom: 10,
+                                                ),
                                                 title: Row(
                                                   children: const [
                                                     Icon(
@@ -336,15 +341,17 @@ class _ScannedParticipantsScreenState extends State<ScannedParticipantsScreen>
                                                           .warning_amber_rounded,
                                                       color: Color(0xff016DA6),
                                                     ),
-                                                    SizedBox(width: 10),
-                                                    Text(
-                                                      "Cancel Attendance?",
-                                                      style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 20,
-                                                        color: Color(
-                                                          0xff016DA6,
+                                                    SizedBox(width: 6),
+                                                    Flexible(
+                                                      child: Text(
+                                                        "Cancel Attendance?",
+                                                        style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 20,
+                                                          color: Color(
+                                                            0xff016DA6,
+                                                          ),
                                                         ),
                                                       ),
                                                     ),
@@ -518,7 +525,7 @@ Widget _infoRow(String title, String? value, IconData icon) {
       decoration: BoxDecoration(
         color: const Color.fromARGB(255, 255, 255, 255),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Color(0xff016da6),),
+        border: Border.all(color: Color(0xff016da6)),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),

@@ -1,14 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:registration_qr/Cus_Widgits/start_page.dart';
-import 'package:registration_qr/Server/navigator.dart';
+import 'package:Registration/Cus_Widgits/start_page.dart';
+import 'package:Registration/Server/navigator.dart';
 
 class SplashScreen extends StatefulWidget {
-  final Duration duration;
-
-  const SplashScreen({Key? key, this.duration = const Duration(seconds: 2)})
-    : super(key: key);
-
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
@@ -18,7 +13,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     Future.delayed(const Duration(seconds: 3), () {
-      AppNavigator.slideLikePageView(context, OnBoardingScreen());
+      AppNavigator.fade(context, OnBoardingScreen());
     });
   }
 

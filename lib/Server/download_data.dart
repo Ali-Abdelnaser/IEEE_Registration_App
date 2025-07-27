@@ -35,14 +35,14 @@ Future<void> exportParticipantsAsExcel(
   }
 
   // Convert to bytes
- final List<int>? fileBytes = excel.encode();
-if (fileBytes == null) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text('❌ Failed to generate Excel file')),
-  );
-  return;
-}
-final Uint8List bytes = Uint8List.fromList(fileBytes);
+  final List<int>? fileBytes = excel.encode();
+  if (fileBytes == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('❌ Failed to generate Excel file')),
+    );
+    return;
+  }
+  final Uint8List bytes = Uint8List.fromList(fileBytes);
 
   if (bytes == null) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -66,12 +66,16 @@ final Uint8List bytes = Uint8List.fromList(fileBytes);
   showDialog(
     context: context,
     builder: (ctx) => AlertDialog(
-      title: const Text('✅ Success'),
-      content: Text('Excel saved in Downloads:\n$fileName.xlsx'),
+      backgroundColor: Colors.white,
+      title: Icon(Icons.check_circle_rounded, color: Colors.green, size: 50),
+      content: Text(
+        'Excel saved in Downloads:\n$fileName.xlsx',
+        style: TextStyle(color: Colors.black),
+      ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(ctx),
-          child: const Text('OK'),
+          child: const Text('OK', style: TextStyle(color: Colors.black)),
         ),
       ],
     ),

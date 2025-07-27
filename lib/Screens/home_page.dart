@@ -20,7 +20,7 @@ class HomePage extends StatelessWidget {
         BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4), // النعومة
           child: Container(
-            color: Colors.black.withOpacity(0.2), // لون شفاف فوق البلور
+            color: Colors.black54.withOpacity(0.2), // لون شفاف فوق البلور
           ),
         ),
 

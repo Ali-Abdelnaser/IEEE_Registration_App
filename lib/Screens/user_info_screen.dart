@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:registration_qr/Screens/q_r_view_screen.dart';
-import 'package:registration_qr/Server/firestore_service.dart';
-import 'package:registration_qr/Server/navigator.dart';
+import 'package:Registration/Server/firestore_service.dart';
 
 class UserInfoScreen extends StatelessWidget {
   final Map<String, dynamic> data;
@@ -57,7 +55,7 @@ class UserInfoScreen extends StatelessWidget {
                         _infoRow("Name", data['name'], Icons.person),
                         _infoRow("Email", data['email'], Icons.email),
                         _infoRow("Team", data['team'], Icons.groups),
-                        const Spacer(),
+                        SizedBox(height: 10),
                         ElevatedButton(
                           onPressed: () async {
                             final success =

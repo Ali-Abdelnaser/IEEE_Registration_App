@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pie_chart/pie_chart.dart';
-import 'package:registration_qr/Cus_Widgits/loder.dart';
-import 'package:registration_qr/Screens/main_shell.dart';
-import 'package:registration_qr/Server/download_data.dart';
-import 'package:registration_qr/Server/firestore_service.dart';
-import 'package:registration_qr/Server/navigator.dart';
+import 'package:Registration/Cus_Widgits/loder.dart';
+import 'package:Registration/Screens/main_shell.dart';
+import 'package:Registration/Screens/team_absent.dart';
+import 'package:Registration/Server/download_data.dart';
+import 'package:Registration/Server/firestore_service.dart';
+import 'package:Registration/Server/navigator.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -27,7 +28,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   ];
 
   final Map<String, Color> colors = {
-    'HR': const Color.fromARGB(179, 1, 68, 126),
+    'HR': Color.fromARGB(179, 1, 68, 126),
     'Logistics': Colors.green,
     'Assistant': Colors.orange,
     'Business': Colors.purple,
@@ -93,27 +94,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final screenPadding = screenWidth * 0.05;
 
     return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(30),
+        child: AppBar(
+          backgroundColor: Colors.transparent,
+          scrolledUnderElevation: 0,
+          automaticallyImplyLeading: false,
+          centerTitle: true,
+          title: Row(),
+        ),
+      ),
       backgroundColor: Colors.white,
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: screenPadding, vertical: 16),
+        padding: EdgeInsets.symmetric(horizontal: screenPadding, vertical: 30),
         child: attendedCounts.isEmpty
             ? const Center(child: MyAppLoader())
             : ListView(
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       IconButton(
                         icon: const Icon(Icons.arrow_back),
-                        onPressed: () => AppNavigator.slideLikePageView(
-                          context,
-                          MainShell(),
-                        ),
+                        onPressed: () =>
+                            AppNavigator.fade(context, MainShell()),
                         color: Colors.black54,
                       ),
+                      Spacer(flex: 1),
                       Center(
                         child: Text(
-                          'Total Participants: ${totalCounts.values.fold(0, (a, b) => a + b)}            ',
+                          'Total Participants: ${totalCounts.values.fold(0, (a, b) => a + b)}   ',
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -121,17 +130,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ),
                       ),
+                      Spacer(flex: 2),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Attended: $totalAttendance | Absent: ${totalCounts.values.fold(0, (a, b) => a + b) - totalAttendance}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87,
+
+                  Center(
+                    child: RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Attended: $totalAttendance',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          TextSpan(
+                            text:
+                                ' | Absent: ${totalCounts.values.fold(0, (a, b) => a + b) - totalAttendance}',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Color.fromARGB(221, 255, 0, 0),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 24),
                   PieChart(
@@ -139,7 +165,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     colorList: teams.map((t) => colors[t]!).toList(),
                     chartRadius: screenWidth / 1.5,
                     legendOptions: const LegendOptions(
-                      showLegends: true,
+                      showLegends: false,
                       legendPosition: LegendPosition.bottom,
                     ),
                     chartValuesOptions: const ChartValuesOptions(
@@ -149,19 +175,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     chartType: ChartType.disc,
                   ),
                   const SizedBox(height: 24),
-
                   // Export Button (Excel)
                   SizedBox(
                     width: double.infinity,
                     height: 55,
                     child: ElevatedButton.icon(
                       onPressed: () async {
-                        await exportParticipantsAsExcel(
-                          context,
-                          filteredList,
-                        );
+                        await exportParticipantsAsExcel(context, filteredList);
                       },
-                      icon: const Icon(Icons.file_download_outlined,size: 25,),
+                      icon: const Icon(Icons.file_download_outlined, size: 25),
                       label: const Text(
                         'Download Attendance ',
                         style: TextStyle(
@@ -187,38 +209,50 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     final total = totalCounts[team] ?? 0;
                     final absent = total - attended;
 
-                    return Card(
-                      color: const Color.fromARGB(207, 211, 210, 210),
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
+                    return GestureDetector(
+                      onTap: () {
+                        AppNavigator.fade(
+                          context,
+                          TeamAbsentsScreen(
+                            teamName: team,
+                            allParticipants: filteredList,
+                          ),
+                          replace: false,
+                        );
+                      },
+                      child: Card(
+                        color: const Color.fromARGB(207, 211, 210, 210),
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '$team: $attended Attended',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: colors[team],
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '$team: $attended Attended',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: colors[team],
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Total in $team: $total | Absent: $absent',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: Colors.black54,
+                              const SizedBox(height: 4),
+                              Text(
+                                'Total in $team: $total | Absent: $absent',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.black54,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     );

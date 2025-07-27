@@ -20,7 +20,7 @@ class AppNavigator {
           child: child,
         );
       },
-      const Duration(milliseconds: 200),
+      const Duration(milliseconds: 350),
     );
   }
 

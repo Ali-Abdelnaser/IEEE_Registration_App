@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:registration_qr/Screens/dashboard_screen.dart';
-import 'package:registration_qr/Screens/home_page.dart';
-import 'package:registration_qr/Screens/main_shell.dart';
-import 'package:registration_qr/Cus_Widgits/splash_screen.dart';
-
+import 'package:Registration/Cus_Widgits/start_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,10 +14,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Registration QR',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(fontFamily: 'Poppins'),
-      home: SplashScreen(),
+      theme: ThemeData(
+        fontFamily: 'Poppins',
+        scaffoldBackgroundColor: Colors.white,
+      ),
+      home: OnBoardingScreen(),
     );
   }
 }
-
-

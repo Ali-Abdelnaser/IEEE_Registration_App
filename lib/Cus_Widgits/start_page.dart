@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:registration_qr/Screens/home_page.dart';
-import 'package:registration_qr/Screens/main_shell.dart';
-import 'package:registration_qr/Server/navigator.dart';
-import 'package:registration_qr/main.dart';
+import 'package:Registration/Screens/main_shell.dart';
+import 'package:Registration/Server/navigator.dart';
 
 class OnBoardingScreen extends StatelessWidget {
   const OnBoardingScreen({super.key});
@@ -10,10 +8,13 @@ class OnBoardingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: Stack(
         fit: StackFit.expand,
         children: [
+          //الصورة بتاعت الخلفيه وهتاخد المساحة كلها 
           Image.asset('assets/img/page2.jpg', fit: BoxFit.cover),
+          // العناصر الي هتكون فوق الصوره بقا 
           Column(
             children: [
               SizedBox(height: 150),
@@ -51,7 +52,7 @@ class OnBoardingScreen extends StatelessWidget {
               SizedBox(height: 20),
               GestureDetector(
                 onTap: () {
-                  AppNavigator.slideLikePageView(context, MainShell());
+                  AppNavigator.fade(context, MainShell());
                 },
                 child: Container(
                   width: 60,

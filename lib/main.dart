@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:Registration/Cus_Widgits/start_page.dart';
+import 'package:registration_qr/Cus_Widgits/start_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

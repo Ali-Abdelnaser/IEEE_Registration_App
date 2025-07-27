@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pie_chart/pie_chart.dart';
-import 'package:Registration/Cus_Widgits/loder.dart';
-import 'package:Registration/Screens/main_shell.dart';
-import 'package:Registration/Screens/team_absent.dart';
-import 'package:Registration/Server/download_data.dart';
-import 'package:Registration/Server/firestore_service.dart';
-import 'package:Registration/Server/navigator.dart';
+import 'package:registration_qr/Cus_Widgits/loder.dart';
+import 'package:registration_qr/Screens/main_shell.dart';
+import 'package:registration_qr/Screens/team_absent.dart';
+import 'package:registration_qr/Server/download_data.dart';
+import 'package:registration_qr/Server/firestore_service.dart';
+import 'package:registration_qr/Server/navigator.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});

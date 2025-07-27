@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:Registration/Cus_Widgits/loder.dart';
-import 'package:Registration/Screens/main_shell.dart';
-import 'package:Registration/Server/firestore_service.dart';
-import 'package:Registration/Server/navigator.dart';
+import 'package:registration_qr/Cus_Widgits/loder.dart';
+import 'package:registration_qr/Screens/main_shell.dart';
+import 'package:registration_qr/Server/firestore_service.dart';
+import 'package:registration_qr/Server/navigator.dart';
 
 class ScannedParticipantsScreen extends StatefulWidget {
   const ScannedParticipantsScreen({super.key});

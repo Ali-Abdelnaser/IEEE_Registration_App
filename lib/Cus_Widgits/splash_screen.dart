@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:Registration/Cus_Widgits/start_page.dart';
-import 'package:Registration/Server/navigator.dart';
+import 'package:registration_qr/Cus_Widgits/start_page.dart';
+import 'package:registration_qr/Server/navigator.dart';
 
 class SplashScreen extends StatefulWidget {
   @override

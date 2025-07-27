@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:Registration/Screens/user_info_screen.dart';
+import 'package:registration_qr/Screens/user_info_screen.dart';
 
 class QRViewScreen extends StatefulWidget {
   const QRViewScreen({super.key});

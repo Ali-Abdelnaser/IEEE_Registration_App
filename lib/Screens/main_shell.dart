@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:Registration/Screens/dashboard_screen.dart';
-import 'package:Registration/Screens/home_page.dart';
-import 'package:Registration/Screens/scanned_participants_screen.dart';
-import 'package:Registration/Screens/q_r_view_screen.dart';
-import 'package:Registration/Server/navigator.dart';
+import 'package:registration_qr/Screens/dashboard_screen.dart';
+import 'package:registration_qr/Screens/home_page.dart';
+import 'package:registration_qr/Screens/scanned_participants_screen.dart';
+import 'package:registration_qr/Screens/q_r_view_screen.dart';
+import 'package:registration_qr/Server/navigator.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});

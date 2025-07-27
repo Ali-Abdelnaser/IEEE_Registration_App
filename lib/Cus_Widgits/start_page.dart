@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:Registration/Screens/main_shell.dart';
-import 'package:Registration/Server/navigator.dart';
+import 'package:registration_qr/Screens/main_shell.dart';
+import 'package:registration_qr/Server/navigator.dart';
 
 class OnBoardingScreen extends StatelessWidget {
   const OnBoardingScreen({super.key});

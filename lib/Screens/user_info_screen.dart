@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:Registration/Server/firestore_service.dart';
+import 'package:registration_qr/Screens/q_r_view_screen.dart';
+import 'package:registration_qr/Server/firestore_service.dart';
+import 'package:registration_qr/Server/navigator.dart';
 
 class UserInfoScreen extends StatelessWidget {
   final Map<String, dynamic> data;

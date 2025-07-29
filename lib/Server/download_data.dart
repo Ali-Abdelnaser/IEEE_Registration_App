@@ -12,7 +12,34 @@ Future<void> exportParticipantsAsExcel(
   var status = await Permission.storage.request();
   if (!status.isGranted) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('❌ Storage permission denied')),
+      SnackBar(
+        backgroundColor: Colors.white,
+        elevation: 4,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 2),
+        content: Row(
+          children: const [
+            Icon(
+              Icons
+                  .sd_storage, // أو ممكن Icons.folder_off لو عايز تعبر عن المجلد مرفوض
+              color: Colors.redAccent,
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Storage permission denied!',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.redAccent,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
     return;
   }
@@ -38,7 +65,33 @@ Future<void> exportParticipantsAsExcel(
   final List<int>? fileBytes = excel.encode();
   if (fileBytes == null) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('❌ Failed to generate Excel file')),
+      SnackBar(
+        backgroundColor: Colors.white,
+        elevation: 4,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 2),
+        content: Row(
+          children: const [
+            Icon(
+              Icons.insert_drive_file, // أيقونة ملف
+              color: Colors.redAccent,
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Failed to generate Excel file!',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.redAccent,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
     return;
   }
@@ -46,7 +99,33 @@ Future<void> exportParticipantsAsExcel(
 
   if (bytes == null) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('❌ Failed to generate Excel file')),
+      SnackBar(
+        backgroundColor: Colors.white,
+        elevation: 4,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 2),
+        content: Row(
+          children: const [
+            Icon(
+              Icons.insert_drive_file, // أيقونة ملف
+              color: Colors.redAccent,
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Failed to generate Excel file!',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.redAccent,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
     return;
   }
@@ -67,15 +146,45 @@ Future<void> exportParticipantsAsExcel(
     context: context,
     builder: (ctx) => AlertDialog(
       backgroundColor: Colors.white,
-      title: Icon(Icons.check_circle_rounded, color: Colors.green, size: 50),
-      content: Text(
-        'Excel saved in Downloads:\n$fileName.xlsx',
-        style: TextStyle(color: Colors.black),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      titlePadding: const EdgeInsets.only(top: 20),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      actionsPadding: const EdgeInsets.only(bottom: 12, right: 12),
+      title: const Icon(
+        Icons.check_circle_rounded,
+        color: Colors.green,
+        size: 60,
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            'Excel file saved successfully!',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Saved to:\nDownloads/$fileName.xlsx',
+            style: const TextStyle(fontSize: 14, color: Colors.black54),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(ctx),
-          child: const Text('OK', style: TextStyle(color: Colors.black)),
+          child: const Text(
+            'OK',
+            style: TextStyle(
+              color: Color(0xff016DA6),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
       ],
     ),

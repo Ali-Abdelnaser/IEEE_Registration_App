@@ -69,38 +69,66 @@ class UserInfoScreen extends StatelessWidget {
                               onConfirm(data);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Center(
-                                    child: Text(
-                                      'Attendance Confirmed ✔️ ',
-                                      style: TextStyle(fontSize: 16),
-                                    ),
-                                  ),
-                                  backgroundColor: Colors.green.shade600,
+                                  backgroundColor: Colors.white,
+                                  elevation: 4,
                                   behavior: SnackBarBehavior.floating,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
                                   margin: const EdgeInsets.all(16),
                                   duration: const Duration(seconds: 2),
+                                  content: Row(
+                                    children: const [
+                                      Icon(
+                                        Icons.check_circle,
+                                        color: Colors.green,
+                                      ),
+                                      SizedBox(width: 12),
+                                      Expanded(
+                                        child: Text(
+                                          'Attendance confirmed successfully!',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.green,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               );
                               Navigator.pop(context, true);
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Center(
-                                    child: Text(
-                                      'Failed to confirm attendance ❌ ',
-                                      style: TextStyle(fontSize: 16),
-                                    ),
-                                  ),
-                                  backgroundColor: Colors.red,
+                                  backgroundColor: Colors.white,
+                                  elevation: 4,
                                   behavior: SnackBarBehavior.floating,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
                                   margin: const EdgeInsets.all(16),
                                   duration: const Duration(seconds: 2),
+                                  content: Row(
+                                    children: const [
+                                      Icon(
+                                        Icons.error,
+                                        color: Colors.redAccent,
+                                      ),
+                                      SizedBox(width: 12),
+                                      Expanded(
+                                        child: Text(
+                                          'Failed to confirm attendance!',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.redAccent,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               );
                             }

@@ -83,7 +83,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("⚠️ Failed to load dashboard data")),
+        SnackBar(
+          backgroundColor: Colors.white,
+          elevation: 4,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          content: const Row(
+            children: const [
+              Icon(Icons.error_outline, color: Colors.redAccent),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Failed to load dashboard data!',
+                  style: TextStyle(
+                    color: Colors.redAccent,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       );
     }
   }

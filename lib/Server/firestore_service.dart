@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
 class FirestoreService {
   final CollectionReference _attendeesCollection = FirebaseFirestore.instance
       .collection('attendees');
@@ -69,7 +70,7 @@ class FirestoreService {
         .limit(1)
         .get();
 
-    if (querySnapshot.docs.isNotEmpty) { 
+    if (querySnapshot.docs.isNotEmpty) {
       final docId = querySnapshot.docs.first.id;
       await _attendeesCollection.doc(docId).update({'attendance': false});
       return true;
@@ -120,9 +121,33 @@ class FirestoreService {
         Navigator.pushNamed(context, '/home');
       }
     } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('❌ ${e.message}')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.white,
+          elevation: 4,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          duration: const Duration(seconds: 3),
+          content: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.redAccent),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Error: ${e.message ?? 'Unexpected error occurred.'}',
+                  style: const TextStyle(
+                    color: Colors.redAccent,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
     }
   }
 }
